@@ -4,7 +4,7 @@ import torch
 from torch.utils import data
 from utils import onsetCNN, Dataset
 import numpy as np
-import tqdm
+from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 # function to repeat positive samples to improve data balance
@@ -133,6 +133,7 @@ for epoch in tqdm(range(max_epochs)):
 plt.plot(train_loss_epoch, label='train')
 plt.plot(val_loss_epoch, label='val')
 plt.legend()
+plt.show()
 plt.savefig('plots/loss_curves_%d' % fold)
 plt.clf()
 torch.save(model.state_dict(), 'saved_model_%d.pt' % fold)

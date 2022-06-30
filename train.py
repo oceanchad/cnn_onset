@@ -4,6 +4,7 @@ import torch
 from torch.utils import data
 from utils import onsetCNN, Dataset
 import numpy as np
+import tqdm
 import matplotlib.pyplot as plt
 
 # function to repeat positive samples to improve data balance
@@ -78,13 +79,13 @@ validation_generator = data.DataLoader(validation_set, **params)
 # training epochs loop
 train_loss_epoch = []
 val_loss_epoch = []
-for epoch in range(max_epochs):
+for epoch in tqdm(range(max_epochs)):
     train_loss_epoch += [0]
     val_loss_epoch += [0]
 
     # training
     n_train = 0
-    for local_batch, local_labels, local_weights in training_generator:
+    for local_batch, local_labels, local_weights in tqdm(training_generator):
         n_train += local_batch.shape[0]
 
         # transfer to GPU

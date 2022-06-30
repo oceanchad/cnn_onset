@@ -28,10 +28,10 @@ device = torch.device("cuda:0" if use_cuda else "cpu")
 # parameters for data loader
 params = {'batch_size': 256, 'shuffle': True, 'num_workers': 6}
 max_epochs = 50
-splitdir = '/Users/hongyucheng/Documents/CS/graduate/research/thesis/music db/onset_detection/'
+splitdir = '/content/onsets/'
 
 # data
-datadir = 'tmp/data_pt_test/'
+datadir = '/content/onsets/data_pt_test/'
 songlist = np.loadtxt('songlist.txt', dtype=str)
 labels = np.load('labels_master.npy', allow_pickle=True).item()
 weights = np.load('weights_master.npy', allow_pickle=True).item()

@@ -26,7 +26,7 @@ print(use_cuda)
 device = torch.device("cuda:0" if use_cuda else "cpu")
 
 # parameters for data loader
-params = {'batch_size': 256, 'shuffle': True, 'num_workers': 6}
+params = {'batch_size': 256, 'shuffle': True, 'num_workers': 2}
 max_epochs = 50
 splitdir = '/content/onsets/'
 

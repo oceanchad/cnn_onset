@@ -22,8 +22,8 @@ def makechunks(x, duration):
 
 
 # data dirs
-audio_dir = '/content/onsets/onsets_audio'
-onset_dir = '/content/onsets/onsets_annotations'
+audio_dir = '/content/onsets/audio'
+onset_dir = '/content/onsets/annotations/onsets'
 save_dir = '/content/onsets/data_pt_test'
 
 # data stats for normalization

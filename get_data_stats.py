@@ -3,7 +3,7 @@ import os
 import librosa
 
 # data dir
-audio_dir = '/content/onsets/onsets_audio'
+audio_dir = '/content/onsets/audio'
 
 # main
 # remember to remove unknown_violin.flac first

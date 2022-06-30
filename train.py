@@ -29,10 +29,16 @@ device = torch.device("cuda:0" if use_cuda else "cpu")
 # parameters for data loader
 params = {'batch_size': 256, 'shuffle': True, 'num_workers': 2}
 max_epochs = 50
-splitdir = '/content/onsets/'
+
+'local'
+splitdir = '/Users/hongyucheng/Documents/CS/graduate/research/thesis/music db/onset_detection/'
+# splitdir = '/content/onsets/'
 
 # data
-datadir = '/content/onsets/data_pt_test/'
+'local'
+datadir = '/Users/hongyucheng/Documents/cnn/cnn-onset-detection/tmp/data_pt_test/'
+# datadir = '/content/onsets/data_pt_test/'
+
 songlist = np.loadtxt('songlist.txt', dtype=str)
 labels = np.load('labels_master.npy', allow_pickle=True).item()
 weights = np.load('weights_master.npy', allow_pickle=True).item()
@@ -79,55 +85,60 @@ validation_generator = data.DataLoader(validation_set, **params)
 # training epochs loop
 train_loss_epoch = []
 val_loss_epoch = []
-for epoch in tqdm(range(max_epochs)):
+
+
+for epoch in range(max_epochs):
     train_loss_epoch += [0]
     val_loss_epoch += [0]
 
     # training
     n_train = 0
-    for local_batch, local_labels, local_weights in tqdm(training_generator):
-        n_train += local_batch.shape[0]
-
-        # transfer to GPU
-        local_batch, local_labels, local_weights = local_batch.to(
-            device), local_labels.to(device), local_weights.to(device)
-
-        # update weights
-        optimizer.zero_grad()
-        outs = model(local_batch).squeeze()
-        loss = criterion(outs, local_labels)
-        loss = torch.dot(loss, local_weights)
-        loss /= local_batch.size()[0]
-        loss.backward()
-        optimizer.step()
-        train_loss_epoch[-1] += loss.item()
-    train_loss_epoch[-1] /= n_train
-
-    # validation
-    n_val = 0
-    with torch.set_grad_enabled(False):
-        for local_batch, local_labels, local_weights in validation_generator:
-            n_val += local_batch.shape[0]
+    with tqdm(total=len(training_generator), position=0, leave=True) as pbar:
+        for local_batch, local_labels, local_weights in tqdm(training_generator, position=0, leave=True):
+            n_train += local_batch.shape[0]
 
             # transfer to GPU
-            local_batch, local_labels = local_batch.to(
-                device), local_labels.to(device)
+            local_batch, local_labels, local_weights = local_batch.to(
+                device), local_labels.to(device), local_weights.to(device)
 
-            # evaluate model
+            # update weights
+            optimizer.zero_grad()
             outs = model(local_batch).squeeze()
-            loss = criterion(outs, local_labels).mean()
-            val_loss_epoch[-1] += loss.item()
-    val_loss_epoch[-1] /= n_val
+            loss = criterion(outs, local_labels)
+            loss = torch.dot(loss, local_weights)
+            loss /= local_batch.size()[0]
+            loss.backward()
+            optimizer.step()
+            train_loss_epoch[-1] += loss.item()
 
-    # print loss in current epoch
-    print('Epoch no: %d/%d\tTrain loss: %f\tVal loss: %f' %
-          (epoch, max_epochs, train_loss_epoch[-1], val_loss_epoch[-1]))
+            pbar.update()
+        train_loss_epoch[-1] /= n_train
 
-    # update LR and momentum (only if using SGD)
-    for param_group in optimizer.param_groups:
-        param_group['lr'] *= 0.995
-        if 10 <= epoch <= 20:
-            param_group['momentum'] += 0.045
+        # validation
+        n_val = 0
+        with torch.set_grad_enabled(False):
+            for local_batch, local_labels, local_weights in validation_generator:
+                n_val += local_batch.shape[0]
+
+                # transfer to GPU
+                local_batch, local_labels = local_batch.to(
+                    device), local_labels.to(device)
+
+                # evaluate model
+                outs = model(local_batch).squeeze()
+                loss = criterion(outs, local_labels).mean()
+                val_loss_epoch[-1] += loss.item()
+        val_loss_epoch[-1] /= n_val
+
+        # print loss in current epoch
+        print('Epoch no: %d/%d\tTrain loss: %f\tVal loss: %f' %
+              (epoch, max_epochs, train_loss_epoch[-1], val_loss_epoch[-1]))
+
+        # update LR and momentum (only if using SGD)
+        for param_group in optimizer.param_groups:
+            param_group['lr'] *= 0.995
+            if 10 <= epoch <= 20:
+                param_group['momentum'] += 0.045
 
 # plot losses vs epoch
 plt.plot(train_loss_epoch, label='train')
